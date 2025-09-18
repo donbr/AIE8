@@ -26,7 +26,7 @@ This week, we'll be working out of your challenge repository!
 > NOTE: You can use the following command to do the same, just be sure to replace the paths with the correct ones based on your local environment.
 
 ```bash
-cp /PATH/TO/THIS/FOLDER/aimakerspace /PATH/TO/YOUR/CHALLENGE
+cp 03_End-to-End_RAG/aimakerspace /home/donbr/aie8/student/ai-vibe-check-platform
 ```
 
 2. Create a new rule in your `.cursor` folder with the following text, make this a global rule that applies at all times:
