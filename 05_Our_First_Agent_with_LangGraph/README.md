@@ -1,101 +1,144 @@
-<p align = "center" draggable=”false” ><img src="https://github.com/AI-Maker-Space/LLM-Dev-101/assets/37101144/d1343317-fa2f-41e1-8af1-1dbb18399719" 
-     width="200px"
-     height="auto"/>
-</p>
+# 🔍 LangGraph Agentic RAG - Session 5 Code Review & Learning Guide
 
-## <h1 align="center" id="heading">Session 5: Our First Agent with LangGraph</h1>
+## 1. Code Summary
 
-| 🤓 Pre-work | 📰 Session Sheet | ⏺️ Recording     | 🖼️ Slides        | 👨‍💻 Repo         | 📝 Homework      | 📁 Feedback       |
-|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|
-|[Session 5: Agents with LangGraph and LangSmith](https://www.notion.so/Session-5-Agents-with-LangGraph-and-LangSmith-26acd547af3d80979d4dd947d02417b7) | Coming soon! | Coming soon! | You are here! | Coming soon! | Coming soon! | Coming soon!
+This implementation demonstrates two production-grade agent architectures using LangGraph:
 
+### Simple Agent Graph (`simple_agent_graph`)
+* **Purpose**: Basic agentic RAG that can search web (Tavily) and academic papers (ArXiv)
+* **Structure**:
+  - **Nodes**: `agent` (LLM decision-making), `action` (tool execution)
+  - **Edges**: Conditional routing via `should_continue` function
+  - **State**: `AgentState` TypedDict with message history using `add_messages` reducer
+* **Flow**: Input → Agent analyzes and decides → If tool needed: execute → Loop back to agent → End when no tools needed
 
+### Advanced Agent with Helpfulness Check (`agent_with_helpfulness_check`)
+* **Purpose**: Enhanced agent that validates response quality before returning
+* **Structure**: Adds helpfulness evaluation loop with up to 10 retries
+* **Flow**: Similar to simple agent but includes LLM-as-judge evaluation using GPT-4.1-mini to determine if response is sufficiently helpful
 
-In today's assignment, we'll be creating an Agentic LangChain RAG Application.
+Both implementations integrate with LangSmith for comprehensive evaluation and tracking.
 
-- 🤝 Breakout Room #1:
-  1. Install required libraries
-  2. Set Environment Variables
-  3. Creating our Tool Belt
-  4. Creating Our State
-  5. Creating and Compiling A Graph!
-  
-- 🤝 Breakout Room #2:
-  - Part 1: LangSmith Evaluator:
-    - Task 1. Creating an Evaluation Dataset
-    - Task 2. Adding Evaluators
-  - Part 2: LangGraph with Helpfulness:
-    - Task 3. Adding Helpfulness Check and "Loop" Limits
-  - Part 3: LangGraph for the "Patterns" of GenAI
-    - Task 4: Helpfulness Check of Gen AI Pattern Descriptions
+---
 
-### Advanced Build
+## 2. Strengths
 
-<details>
-<summary>🚧 Advanced Build 🚧 (OPTIONAL - <i>open this section for the requirements</i>)</summary>
+1. **Clean Architectural Progression**: Excellent demonstration of moving from simple to complex agent patterns, perfect for educational purposes
+2. **Production-Ready Evaluation**: Well-implemented LangSmith integration with custom evaluators (`must_mention`) and LLM-as-judge (`correctness_evaluator`)
+3. **Proper State Management**: Uses LangGraph's `add_messages` annotation for automatic message history handling
+4. **Clear Separation of Concerns**: Tool node, model calling, and routing logic are properly separated
+5. **Real-World Tools**: Integration with practical tools (Tavily for web search, ArXiv for academic papers) demonstrates production use cases
 
-You are tasked to create an agent with 3 tools that can research a specific domain of your choice.
+---
 
-You must deploy the resultant agent with a React (or Custom) frontend.
+## 3. Graph Design Review
 
-</details>
-
-## Ship 🚢
-
-The completed notebook!
-
-### Deliverables
-
-- A short Loom of the notebook, and a 1min. walkthrough of the application in full
-
-## Share 🚀
-
-Make a social media post about your final application!
-
-### Deliverables
-
-- Make a post on any social media platform about what you built!
-
-Here's a template to get you started:
-
+### State Design
+```python
+class AgentState(TypedDict):
+    messages: Annotated[list, add_messages]
 ```
-🚀 Exciting News! 🚀
+* **Good**: Simple, focused state that leverages LangGraph's message utilities
+* **Consider**: ?
 
-I am thrilled to announce that I have just built and shipped an Agentic Retrieval Augmented Generation Application with LangChain! 🎉🤖
+### Nodes Assessment
+* **`call_model` node**: Clean implementation, properly returns message wrapped in dict
+* **`tool_node`**: Good use of prebuilt `ToolNode`, reduces boilerplate
 
-🔍 Three Key Takeaways:
-1️⃣ 
-2️⃣ 
-3️⃣ 
+### Edges & Routing
+* **`should_continue`**: Simple and effective for basic routing
+* **`tool_call_or_helpful`**: More sophisticated but has magic number (10 messages)
+* **Missing**: ?
 
-Let's continue pushing the boundaries of what's possible in the world of AI and question-answering. Here's to many more innovations! 🚀
-Shout out to @AIMakerspace !
+### Checkpointing & Reproducibility
+* **Gap**: No checkpointer configured, limiting ability to resume failed runs
+* **Recommendation**: ?
 
-#LangChain #QuestionAnswering #RetrievalAugmented #Innovation #AI #TechMilestone
+---
 
-Feel free to reach out if you're curious or would like to collaborate on similar projects! 🤝🔥
-```
+## 4. Tooling & Retrieval Review
 
-## Submitting Your Homework
+### Tool Integration
+* **Tavily Search**: Well-configured with `max_results=5`
+* **ArXiv**: Good for academic use cases
+* **Schema**: Tools bound to model via `bind_tools()`
 
-### Main Homework Assignment
+### Error Handling
 
-Follow these steps to prepare and submit your homework assignment:
-1. Create a branch of your `AIE8` repo to track your changes. Example command: `git checkout -b s05-assignment`
-2. Respond to the activities and questions in the `Introduction_to_LangGraph_for_Agents_Assignment_Version.ipynb` notebook:
-    + Edit the markdown cells of the activities and questions then enter your responses
-    + NOTE: Remember to create a header (example: `##### ✅ Answer:`) to help the grader find your responses
-3. Commit, and push your completed notebook to your `origin` repository. _NOTE: Do not merge it into your main branch._
-4. Make sure to include all of the following on your Homework Submission Form:
-    + The GitHub URL to the completed notebook _on your assignment branch (not main)_
-    + The URL to your Loom Video
-    + Your Three Lessons Learned/Not Yet Learned
-    + The URLs to any social media posts (LinkedIn, X, Discord, etc.) ⬅️ _easy Extra Credit points!_
 
-### Advanced Build 
->_(To be done in place of the Main Assignment)_
+### Retrieval Patterns
+* Currently using simple tool-based retrieval
+* **Enhancement Opportunity**: Add vector store for persistent knowledge base
 
-1. Complete the requirements, including deployment of the application.
-2. Complete the Homework Submission form providing the URLs to your Advanced Build's:
-    + GitHub Repo
-    + Production Deployment
+---
+
+## 5. Prompting & Determinism
+
+### System Prompts
+* No system prompts defined for consistent behavior
+* Helpfulness evaluation prompt is inline (lines 201-208) - should be externalized
+
+### Temperature Settings
+* `temperature=0` for main agent (good for consistency)
+
+### Structured Output
+* ?
+
+### Guardrails
+* Helpfulness check is a good start but could be more comprehensive
+* Missing: ?
+
+---
+
+## 6. Evaluation Plan (LangSmith / RAGAS)
+
+### Current Implementation
+* **Dataset Creation**: Properly creates test datasets with expected outputs
+* **Custom Evaluators**:
+  - `must_mention`: Simple keyword matching (good baseline)
+  - `correctness_evaluator`: LLM-as-judge using o3-mini
+* **Experiment Tracking**: Good use of experiment prefixes and descriptions
+
+---
+
+## Appendix
+
+### A. References
+* [LangGraph Documentation](https://langchain-ai.github.io/langgraph/) - Core concepts and patterns
+* [LangSmith Evaluation Guide](https://docs.langchain.com/langsmith/home) - Evaluation best practices
+* [Building Production-Ready Agents](https://blog.langchain.com/how-to-think-about-agent-frameworks/) - April 2025
+* [Context Engineering for Agents](https://blog.langchain.com/context-engineering-for-agents/) - July 2025
+
+### B. Further Reading
+* **Agent Architectures**: Study the progression from ReAct → Planning → Reflection patterns
+* **Evaluation Frameworks**: Explore RAGAS for comprehensive RAG evaluation
+* **Production Considerations**: Review [Is LangGraph Used in Production?](https://blog.langchain.com/is-langgraph-used-in-production/) - February 2025
+
+### C. Next Learning Steps
+
+For Session 6 preparation, students should:
+1. **Master Multi-Agent Patterns**: Understand supervisor vs swarm architectures
+2. **Explore Advanced Routing**: Study more complex conditional edges and subgraphs
+3. **Practice Evaluation**: Create golden datasets for your use case
+4. **Consider Scale**: Think about handling 1000x your current load
+
+### D. Reflection Questions (from Breakout Rooms)
+
+Consider these questions as you review the code:
+1. **How does the model determine which tool to use?** (Hint: Check tool descriptions and model decision-making)
+2. **Is there a limit to how many times we can cycle?** (Hint: search LangGraph documentation for recursion limits)
+3. **How are correct answers associated with questions?** (Review the `must_mention` evaluator)
+4. **What improvements could make the evaluation metrics more robust?** (Think beyond exact string matching)
+
+---
+
+## Session 5 Learning Objectives Checklist
+
+- ✅ Build production-grade agent with LangGraph
+- ✅ Understand cyclic vs acyclic graphs
+- ✅ Implement tool calling with conditional routing
+- ✅ Add LLM-as-judge evaluation loops
+- ✅ Create and run LangSmith evaluations
+- ✅ Understand when agents are necessary (too many if-then conditions)
+
+**Remember**: Agents provide *dynamic reasoning capability* when workflows become too complex for static rules!
